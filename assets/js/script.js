@@ -2,7 +2,6 @@ var openWeatherMapAPI = '41dcd9d8063f4abb3ee28c6c6fbc6354';
 var launchAPIURL = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //prod
 // var launchAPIURL = "https://lldev.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //dev
 var launchContainerEL = document.querySelector("#launch-container");
-var forecastContainerEL = document.querySelector("#forecast-container");
 var searchFormEL = document.querySelector("#search-form");
 var searchtermTitleEL  = document.querySelector("#searchterm-title");
 var searchtermEL = document.querySelector("#searchterm");
@@ -318,7 +317,6 @@ var formSubmitHander = function(event) {
     */
     launchContainerEL.textContent = "";
     searchtermTitleEL.textContent = "";
-    forecastContainerEL.textContent = "";
 
     var searchterm = searchtermEL.value.trim();
     if (searchterm) {
