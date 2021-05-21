@@ -1,12 +1,13 @@
 var openWeatherMapAPI = '41dcd9d8063f4abb3ee28c6c6fbc6354';
-var citiesContainerEL = document.querySelector("#cities-container");
+var launchAPIURL = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //prod
+// var launchAPIURL = "https://lldev.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //dev
 var launchContainerEL = document.querySelector("#launch-container");
 var forecastContainerEL = document.querySelector("#forecast-container");
-var cityFormEL = document.querySelector("#city-form");
-var cityTitleEL  = document.querySelector("#city-title");
-var cityNameEL = document.querySelector("#cityname");
+var searchFormEL = document.querySelector("#search-form");
+var searchtermTitleEL  = document.querySelector("#searchterm-title");
+var searchtermEL = document.querySelector("#searchterm");
 var fiveDayForecastEL = document.querySelector("#five-day-forecast");
-var cityHistoryEL = document.querySelector("#cities-container");
+// var cityHistoryEL = document.querySelector("#cities-container");
 
 var date_diff_indays = function(date1, date2) {
     dt1 = new Date(date1);
@@ -16,11 +17,12 @@ var date_diff_indays = function(date1, date2) {
 
 var list = JSON.parse(localStorage.getItem('weathercities')) || []; //Short-circuit evaluation
 
-const getLaunchData = async () => {
-    // var apiURL = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //prod
-    // var apiURL = "https://lldev.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //dev
-    console.log("index.html 10 | Processing...");
-    const request = await fetch("https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net");
+const getLaunchData = async (search) => {
+    // console.log("index.html 10 | Processing...");
+    if (search.length > 0) {
+        launchAPIURL += "&search=" + search;
+    }
+    const request = await fetch(launchAPIURL);
     const data = await request.json();
     return data;
   };
@@ -32,14 +34,16 @@ const getLaunchData = async () => {
     return data;
   };
 
-  const callDataInOrder = async () => {
+  const callLoadLaunches = async () => {
     launchContainerEL.textContent = "";
     var containerEL = document.createElement("div");
     containerEL.setAttribute("class", "container");
     var rowEL = document.createElement("div");
     rowEL.setAttribute("class", "row");
 
-    const launchData = await getLaunchData();
+    var search = searchtermEL.value.trim();
+    
+    const launchData = await getLaunchData(search);
     // console.log('callDataInCorder line 43');
     // console.log(launchData);
      // check if api returned forecast
@@ -52,14 +56,14 @@ const getLaunchData = async () => {
     var launchesArr = launchData.results;
     // console.log(dailyArr);
     for (var i = 0; i< launchesArr.length; i++) {
-         console.log('line 55 looping through launches; at number: ', i);
+        //  console.log('line 60 looping through launches; at number: ', i);
         // get date
         var launchDate = launchesArr[i].net;
 
         // date = '2021-05-20T17:09:00Z';
         // console.log(date);
         var convertedDate = new Date(launchDate);// new Date(date * 1000).toLocaleString();
-        console.log('convertedDate: ' + convertedDate);
+        // console.log('convertedDate: ' + convertedDate);
 
         var convertedTime;
         var daysOut = 30;
@@ -134,7 +138,7 @@ const getLaunchData = async () => {
         missionNameEL.setAttribute("class", "card-title");
         missionNameEL.textContent = missionName;
         cardBodyEL.appendChild(missionNameEL);
-        console.log(missionName);
+        // console.log(missionName);
 
         //location
         var lat = launchesArr[i].pad.latitude;
@@ -150,7 +154,7 @@ const getLaunchData = async () => {
        }
        else {
             missionDescription = launchesArr[i].mission.description;
-             console.log('missionDescription 153: ', missionDescription);
+            //  console.log('missionDescription 158: ', missionDescription);
             var missionDescEL = document.createElement("p");
             // missionDescEL.setAttribute("style", ".card-body");
             missionDescEL.textContent = missionDescription;
@@ -159,19 +163,19 @@ const getLaunchData = async () => {
             var weatherDescEL = document.createElement("div");
 
             if (daysOut < 9) {
-                console.log("index.html 170 | launchData", launchData);
+                // console.log("index.html 167 | launchData", launchData);
                 // document.getElementById("total-cases").innerText =
                 //   covidData.confirmed.value;
             
                 const detailData = await getWeatherForLocation(lat, long);
-                console.log("index.html 175 | detail Data", detailData);
+                // console.log("index.html 172 | detail Data", detailData);
                 // document.getElementById("city-of-origin").innerText =
                 //   detailData[0].confirmed;
-                console.log("index.html 178 | detail Data timezone", detailData.timezone);
+                // console.log("index.html 175 | detail Data timezone", detailData.timezone);
 
                 //get forecast array
                 var dailyArr = detailData.daily;
-                console.log ("dailyArr", dailyArr);
+                // console.log ("dailyArr", dailyArr);
 
                 //find matching date
                 for (var w = 0; w< dailyArr.length; w++) {
@@ -182,12 +186,12 @@ const getLaunchData = async () => {
                     // console.log(date);
                     launchDate = new Date(launchDate).toDateString();
                     var launchTime = new Date(date).toTimeString();
-                    console.log("launchTime: ", launchTime);
+                    // console.log("launchTime: ", launchTime);
                     
                     if (launchDate === convertedDate) {
-                        console.log('launchDate: ' + launchDate);
-                        console.log('convertedDate: ' + convertedDate);
-                        console.log("We have a match!");
+                        // console.log('launchDate: ' + launchDate);
+                        // console.log('convertedDate: ' + convertedDate);
+                        // console.log("We have a match!");
 
                         var weatherHeading = document.createElement("h3");
                         weatherHeading.setAttribute("class", "weather-title");
@@ -240,19 +244,19 @@ const getLaunchData = async () => {
                         // console.log('launchTimeHours', n);
                         switch (true) {
                             case (n < 6):
-                                console.log("midnight");
+                                // console.log("midnight");
                                 currentTempF = dailyArr[w].temp.night;
                                 break;
                             case (n < 17):
-                                console.log("day");
+                                // console.log("day");
                                 currentTempF = dailyArr[w].temp.day;
                                 break;
                             case (n < 20):
-                                console.log("evening");
+                                // console.log("evening");
                                 currentTempF = dailyArr[w].temp.eve;
                                 break;
                             default:
-                                console.log("night");
+                                // console.log("night");
                                 currentTempF = dailyArr[w].temp.night;
                         }
                         // var currentTempF = (tempKelvin - 273.15) * (9/5) + 32;
@@ -281,7 +285,7 @@ const getLaunchData = async () => {
         var location = "";
         if (!launchesArr[i].pad) {
             location = launchesArr[i].pad.location.name;
-            console.log('location: ' + location);
+            // console.log('location: ' + location);
         }
 
         cardEL.appendChild(cardHeaderEL);
@@ -307,28 +311,22 @@ var formSubmitHander = function(event) {
     as we'll handle what happens with the form input data ourselves in JavaScript.
     */
     launchContainerEL.textContent = "";
-    cityTitleEL.textContent = "";
+    searchtermTitleEL.textContent = "";
     forecastContainerEL.textContent = "";
     // fiveDayForecastEL.textContent = "";
 
-    var cityname = cityNameEL.value.trim();
-    if (cityname) {
-        // format city name - Capitalize first letter of word(s) in city name
-        var cityWords = cityname.toLowerCase().split(' ');
-        for (var i = 0; i < cityWords.length; i++) {
-            cityWords[i] = cityWords[i].charAt(0).toUpperCase() + cityWords[i].substring(1);
-        }
-        cityname = cityWords.join(' ');
-        saveCityHistory(cityname);
-        getCityCoordinates(cityname);
-        cityNameEL.value = '';
+    var searchterm = searchtermEL.value.trim();
+    if (searchterm) {
+        callLoadLaunches();
+        searchtermTitleEL.textContent = "Search results for " + searchterm;
+        searchtermEL.value = '';
     }
     else {
-        alert("Please enter a city");
+        callLoadLaunches();
     }
 }
 
-cityFormEL.addEventListener("submit", formSubmitHander);
+searchFormEL.addEventListener("submit", formSubmitHander);
 
 var getUVIndexColorClass = function(uvIndex) {
     if (uvIndex < 3) {
@@ -342,76 +340,4 @@ var getUVIndexColorClass = function(uvIndex) {
     }
 }
 
-// var saveCityHistory = function(city) {
-//     cityHistoryEL.textContent = "";
-//     var list = JSON.parse(localStorage.getItem('weathercities')) || []; //Short-circuit evaluation
-
-//     var n = list.includes(city);
-
-//     if (n === false) {
-//         console.log("saving new city " + city)
-//         list.push(city);
-//         // Save the city into localStorage
-//         // We need to use JSON.stringify to turn the list from an array into a string
-//         localStorage.setItem('weathercities', JSON.stringify(list));
-//     }
-
-//     getSavedCities(list);
-
-//     // Clear the textbox when done using `.val()`
-//     // $('#cityname').val('');
-// }
-
-
-// getSavedCities = function(list) {
-
-//      // Iterates over the 'list'
-//      for (var i = 0; i < list.length; i++) {
-//         // Creates a new variable 'cityItem' that will hold a "<p>" tag
-//         // Sets the `list` item's value as text of this <p> element
-//         var cityItem = $('<p>');
-//         // cityItem.text(list[i]);
-
-//         // Creates a button `citySearchBtn` with an attribute called `data-city and a unique `id`
-//         var citySearchBtn = $('<button>');
-//         citySearchBtn.attr('data-city', i);
-
-//         // Gives the button a class 
-//         citySearchBtn.addClass('button');
-
-//         // Adds text value to button for city
-//         citySearchBtn.text(list[i]);
-
-//         // Adds the button to the `cityItem`
-//         cityItem = cityItem.prepend(citySearchBtn);
-
-//         // Adds 'cityItem' to the City History List div
-//         $('#cities-container').append(cityItem);
-//       }
-// }
-
-// City history search
-$(document).on('click', '.button', function() {
-    console.log('testing button click')
-    weatherContainerEL.textContent = "";
-    cityTitleEL.textContent = "";
-    forecastContainerEL.textContent = "";
-    fiveDayForecastEL.textContent = "";
-    // Get the `id` of the button from its data attribute and hold in a variable called 'getCity' (array item index)
-    //this refers to the function invoked by the click event.
-    var getCity = $(this).attr('data-city');
-    console.log(getCity);
-
-    var list = JSON.parse(localStorage.getItem('weathercities')) || []; //Short-circuit evaluation
-    // console.log(list);
-    // console.log(list[getCity]);
-
-    getCityCoordinates(list[getCity]);
-
-  });
-
-// getCityCoordinates("Indianapolis");
-// getSavedCities(list);
-
-// getUpcomingLaunches();
-callDataInOrder();
+callLoadLaunches();

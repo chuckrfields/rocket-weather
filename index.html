@@ -19,17 +19,17 @@
     <main class="flex-row justify-space-between">
       <div class="col-12 col-md-2">
         <div class="card-search">
-          <h2 class="card-header-search">Search for a City:</h2>
-          <form id="city-form" class="card-body">
-            <input name="cityname" id="cityname" type="text" autofocus="true" placeholder="San Diego" class="form-input" />
+          <h2 class="card-header-search">Search:</h2>
+          <form id="search-form" class="card-body">
+            <input name="searchterm" id="searchterm" type="text" autofocus="true" placeholder="SpaceX" class="form-input" />
             <button type="submit" class="btn">Search</button>
           </form>
         </div>
-        <div id="cities-container" class="list-group"></div>
+        <div id="searchterm-container" class="list-group"></div>
       </div>
       <div class="col-12 col-md-10">
           <div class="flex-row justify-space-between" id="current-weather">
-            <span id="city-title"></span>
+            <span id="searchterm-title"></span>
             
             <div id="launch-container" class="list-group"></div>
           </div>
