@@ -200,6 +200,13 @@
     text-align: center;
     color: white;
   }
+
+  .center {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
   
   /* FORM */
   .form-label,
