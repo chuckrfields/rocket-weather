@@ -81,6 +81,9 @@ const getLaunchData = async (search) => {
                      pm = true;
                      h = h - 12;
                  }
+                 else if (h == 0) {
+                    h = 12;
+                 }
                  
                  var m = convertedDate.getMinutes();
                  if (m < 10) {
