@@ -42,7 +42,7 @@ const getLaunchData = async (search) => {
     var search = searchtermEL.value.trim();
     
     const launchData = await getLaunchData(search);
-    // console.log('callDataInCorder line 43');
+    // console.log('callDataInCorder line 45');
     // console.log(launchData);
      // check if api returned forecast
      if (launchData.length === 0) {
@@ -69,7 +69,7 @@ const getLaunchData = async (search) => {
      
              var today = new Date();
              // console.log('today: ', today);
-             // console.log('convertedDate: ', convertedDate);
+            //  console.log('convertedDate: ', convertedDate);
              daysOut = date_diff_indays(today, convertedDate);
      
              if (convertedDate.getHours() == 20 && convertedDate.getMinutes() == 0) {
