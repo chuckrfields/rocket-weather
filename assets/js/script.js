@@ -8,87 +8,65 @@ var cityNameEL = document.querySelector("#cityname");
 var fiveDayForecastEL = document.querySelector("#five-day-forecast");
 var cityHistoryEL = document.querySelector("#cities-container");
 
-// function WeatherObj(image, temp, wind, humidity) {
-//     this.image = image;
-//     this.temp = temp;
-//     this.wind = wind;
-//     this.humidity = humidity;
-// }
-var weatherObj;// = {image: "", temp: "", wind: "", humidity: ""};
-
-var list = JSON.parse(localStorage.getItem('weathercities')) || []; //Short-circuit evaluation
-
-var formSubmitHander = function(event) {
-    event.preventDefault();
-    /*
-    event.preventDefault() stops the browser from performing the default action the event wants it to do. 
-    In the case of submitting a form, it prevents the browser from sending the form's input data to a URL, 
-    as we'll handle what happens with the form input data ourselves in JavaScript.
-    */
-    launchContainerEL.textContent = "";
-    cityTitleEL.textContent = "";
-    forecastContainerEL.textContent = "";
-    fiveDayForecastEL.textContent = "";
-
-    var cityname = cityNameEL.value.trim();
-    if (cityname) {
-        // format city name - Capitalize first letter of word(s) in city name
-        var cityWords = cityname.toLowerCase().split(' ');
-        for (var i = 0; i < cityWords.length; i++) {
-            cityWords[i] = cityWords[i].charAt(0).toUpperCase() + cityWords[i].substring(1);
-        }
-        cityname = cityWords.join(' ');
-        saveCityHistory(cityname);
-        getCityCoordinates(cityname);
-        cityNameEL.value = '';
-    }
-    else {
-        alert("Please enter a city");
-    }
-}
-
-cityFormEL.addEventListener("submit", formSubmitHander);
-
 var date_diff_indays = function(date1, date2) {
     dt1 = new Date(date1);
     dt2 = new Date(date2);
     return Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
     };
 
-var displayLaunches = function(data) {
-    // console.log(data);
+var list = JSON.parse(localStorage.getItem('weathercities')) || []; //Short-circuit evaluation
+
+const getLaunchData = async () => {
+    // var apiURL = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //prod
+    // var apiURL = "https://lldev.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //dev
+    console.log("index.html 10 | Processing...");
+    const request = await fetch("https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net");
+    const data = await request.json();
+    return data;
+  };
+
+  const getWeatherForLocation = async (latitude, longitude) => {
+    var apiURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + latitude + "&lon=" + longitude + "&units=imperial" + "&APPID=" + openWeatherMapAPI;
+    const request = await fetch(apiURL);
+    const data = await request.json();
+    return data;
+  };
+
+  const callDataInOrder = async () => {
     launchContainerEL.textContent = "";
     var containerEL = document.createElement("div");
     containerEL.setAttribute("class", "container");
     var rowEL = document.createElement("div");
     rowEL.setAttribute("class", "row");
 
-    // check if api returned forecast
-    if (data.length === 0) {
-        launchContainerEL.textContent = "No launch found";
+    const launchData = await getLaunchData();
+    // console.log('callDataInCorder line 43');
+    // console.log(launchData);
+     // check if api returned forecast
+     if (launchData.length === 0) {
+        launchData.textContent = "No launch found";
         return;
-    }
+     }
 
-    fiveDayForecastEL.textContent = "Upcoming Launches:"
-    // loop through next 10 launches in array
-    var launchesArr = data.results;
+         // loop through next 10 launches in array
+    var launchesArr = launchData.results;
     // console.log(dailyArr);
-    for (var i = 0; i< 10; i++) {
-        // console.log(dailyArr[i]);
+    for (var i = 0; i< launchesArr.length; i++) {
+         console.log('line 55 looping through launches; at number: ', i);
         // get date
-        var date = launchesArr[i].net;
+        var launchDate = launchesArr[i].net;
 
         // date = '2021-05-20T17:09:00Z';
         // console.log(date);
-        var convertedDate = new Date(date);// new Date(date * 1000).toLocaleString();
-        // console.log('convertedDate: ' + convertedDate);
+        var convertedDate = new Date(launchDate);// new Date(date * 1000).toLocaleString();
+        console.log('convertedDate: ' + convertedDate);
 
         var convertedTime;
         var daysOut = 30;
 
         var today = new Date();
-        console.log(today);
-        console.log(convertedDate);
+        // console.log('today: ', today);
+        // console.log('convertedDate: ', convertedDate);
         daysOut = date_diff_indays(today, convertedDate);
 
         if (convertedDate.getHours() == 20 && convertedDate.getMinutes() == 0) {
@@ -109,7 +87,7 @@ var displayLaunches = function(data) {
 
             // console.log('h: ' + h);
             // console.log('m: ' + m);
-           var timezone = new Date(date).toString().match(/\(([A-Za-z\s].*)\)/)[1];
+           var timezone = new Date(launchDate).toString().match(/\(([A-Za-z\s].*)\)/)[1];
     
             if (pm) {
                 convertedTime = h + ":" + m.toString() + ' PM ' + timezone;
@@ -122,10 +100,11 @@ var displayLaunches = function(data) {
         }
 
         // console.log(convertedTime);
-        console.log('daysout: ' + daysOut);
+        // console.log('daysout: ' + daysOut);
 
         var colEL = document.createElement("div");
         colEL.setAttribute("class", "col col-md-2.5");
+        colEL.setAttribute("id", "#col-" + i);
         var cardEL = document.createElement("div");
         cardEL.classList = "card text-white bg-secondary mb-3";
         cardEL.setAttribute("style", "width: 30rem;");
@@ -171,7 +150,7 @@ var displayLaunches = function(data) {
        }
        else {
             missionDescription = launchesArr[i].mission.description;
-            // console.log(missionDescription);
+             console.log('missionDescription 153: ', missionDescription);
             var missionDescEL = document.createElement("p");
             // missionDescEL.setAttribute("style", ".card-body");
             missionDescEL.textContent = missionDescription;
@@ -180,43 +159,121 @@ var displayLaunches = function(data) {
             var weatherDescEL = document.createElement("div");
 
             if (daysOut < 9) {
-                console.log('daysout < 9: ' + daysOut);
-                 getCityWeather(lat, long, location, convertedDate);
-                console.log('in displayLaunches');
-                console.log(weatherObj);
-                
-                if (weatherObj != null) {
-                   // loop over values
-                   console.log(Object.values(weatherObj));
+                console.log("index.html 170 | launchData", launchData);
+                // document.getElementById("total-cases").innerText =
+                //   covidData.confirmed.value;
+            
+                const detailData = await getWeatherForLocation(lat, long);
+                console.log("index.html 175 | detail Data", detailData);
+                // document.getElementById("city-of-origin").innerText =
+                //   detailData[0].confirmed;
+                console.log("index.html 178 | detail Data timezone", detailData.timezone);
 
-                    // icon
-                    var weatherImage = document.createElement("img");
-                    var iconURL = weatherObj.image;
-                    weatherImage.setAttribute("src", iconURL);
-                    weatherImage.setAttribute("class", "weather-icon");
-                    // console.log(iconURL);
-                    weatherDescEL.appendChild(weatherImage);
+                //get forecast array
+                var dailyArr = detailData.daily;
+                console.log ("dailyArr", dailyArr);
 
-                    //temperature
-                    var forecastTemperatureEL = document.createElement("p");
-                    forecastTemperatureEL.textContent = weatherObj.temp;
-                    weatherDescEL.appendChild(forecastTemperatureEL);
+                //find matching date
+                for (var w = 0; w< dailyArr.length; w++) {
+                    // console.log(dailyArr[i]);
+                    // get date
+                    var date = dailyArr[w].dt;
+                    var convertedDate = new Date(date * 1000).toDateString();
+                    // console.log(date);
+                    launchDate = new Date(launchDate).toDateString();
+                    var launchTime = new Date(date).toTimeString();
+                    console.log("launchTime: ", launchTime);
+                    
+                    if (launchDate === convertedDate) {
+                        console.log('launchDate: ' + launchDate);
+                        console.log('convertedDate: ' + convertedDate);
+                        console.log("We have a match!");
 
-                    // wind
-                    var forecastWindEL = document.createElement("p");
-                    forecastWindEL.textContent = weatherObj.wind;
-                    weatherDescEL.appendChild(forecastWindEL);
+                        var weatherHeading = document.createElement("h3");
+                        weatherHeading.setAttribute("class", "weather-title");
+                        weatherHeading.textContent = "Launch Forecast";
+                        weatherDescEL.appendChild(weatherHeading);
+           
+                        //icon
+                        var iconURL = 'http://openweathermap.org/img/wn/' + dailyArr[w].weather[0].icon + '@2x.png';
+                        // console.log('iconURL: ', iconURL);
+                        
+                        //temperature
+                        var tempKelvin = dailyArr[w].temp.day;
+                        var forecastTempF = (tempKelvin - 273.15) * (9/5) + 32;
+            
+                        // wind
+                        var windSpeed = dailyArr[w].wind_speed; 
+            
+                        // icon
+                        var weatherImage = document.createElement("img");
+                        weatherImage.setAttribute("src", iconURL);
+                        weatherImage.setAttribute("class", "weather-icon");
+                        // console.log(iconURL);
+                        weatherDescEL.appendChild(weatherImage);
 
-                    // humidity
-                    var forecastHumidityEL = document.createElement('p');
-                    forecastHumidityEL.textContent = weatherObj.humidity;
-                    weatherDescEL.appendChild(forecastHumidityEL);
-                }
-                else {
-                    console.log("weatherObj is null");
-                    weatherDescEL.textContent = "nothing to display";
-                }
-            }
+                        //weather description
+                        var weatherForecast = dailyArr[w].weather[0].description;
+                        var weatherForecastEL = document.createElement("div");
+                        weatherForecastEL.textContent = weatherForecast;
+                        weatherDescEL.appendChild(weatherForecastEL);
+
+                        //cloud cover
+                        var cloudCover = "Cloud Coverage: " + dailyArr[w].clouds + "%";
+                        var cloudCoverEL = document.createElement("div");
+                        cloudCoverEL.textContent = cloudCover;
+                        weatherDescEL.appendChild(cloudCoverEL);
+
+                        //chance of rain
+                        if (dailyArr[i].rain != undefined && dailyArr[w].rain != null) {
+                            var rainChance = "Chance of Rain: " + dailyArr[w].rain + "%";
+                            var rainChanceEL = document.createElement("div");
+                            rainChanceEL.textContent = rainChance;
+                            weatherDescEL.appendChild(rainChanceEL);
+                        };
+                        
+                        //temperature
+                        var forecastTemperatureEL = document.createElement("div");
+                        var n = parseInt(launchTime.substring(0,2));
+                        var currentTempF = dailyArr[w].temp.day;                       
+
+                        // console.log('launchTimeHours', n);
+                        switch (true) {
+                            case (n < 6):
+                                console.log("midnight");
+                                currentTempF = dailyArr[w].temp.night;
+                                break;
+                            case (n < 17):
+                                console.log("day");
+                                currentTempF = dailyArr[w].temp.day;
+                                break;
+                            case (n < 20):
+                                console.log("evening");
+                                currentTempF = dailyArr[w].temp.eve;
+                                break;
+                            default:
+                                console.log("night");
+                                currentTempF = dailyArr[w].temp.night;
+                        }
+                        // var currentTempF = (tempKelvin - 273.15) * (9/5) + 32;
+
+                        forecastTemperatureEL.textContent = "Temp: " + currentTempF.toFixed(2) + "˚ F";
+                        weatherDescEL.appendChild(forecastTemperatureEL);
+
+                        // wind
+                        var forecastWindEL = document.createElement("div");
+                        forecastWindEL.textContent = "Wind speed: " + dailyArr[w].wind_speed + " mph";
+                        weatherDescEL.appendChild(forecastWindEL);
+
+                        // humidity
+                        var forecastHumidityEL = document.createElement('div');
+                        forecastHumidityEL.textContent = "Humidity: " + dailyArr[w].humidity  + "%";
+                        weatherDescEL.appendChild(forecastHumidityEL);
+            
+                    };
+                };
+
+            };
 
             cardBodyEL.appendChild(weatherDescEL);
        }
@@ -235,11 +292,43 @@ var displayLaunches = function(data) {
 
         rowEL.appendChild(colEL);
     }
-    
+
     containerEL.appendChild(rowEL);
 
     launchContainerEL.appendChild(containerEL);
-};
+
+  };
+
+var formSubmitHander = function(event) {
+    event.preventDefault();
+    /*
+    event.preventDefault() stops the browser from performing the default action the event wants it to do. 
+    In the case of submitting a form, it prevents the browser from sending the form's input data to a URL, 
+    as we'll handle what happens with the form input data ourselves in JavaScript.
+    */
+    launchContainerEL.textContent = "";
+    cityTitleEL.textContent = "";
+    forecastContainerEL.textContent = "";
+    // fiveDayForecastEL.textContent = "";
+
+    var cityname = cityNameEL.value.trim();
+    if (cityname) {
+        // format city name - Capitalize first letter of word(s) in city name
+        var cityWords = cityname.toLowerCase().split(' ');
+        for (var i = 0; i < cityWords.length; i++) {
+            cityWords[i] = cityWords[i].charAt(0).toUpperCase() + cityWords[i].substring(1);
+        }
+        cityname = cityWords.join(' ');
+        saveCityHistory(cityname);
+        getCityCoordinates(cityname);
+        cityNameEL.value = '';
+    }
+    else {
+        alert("Please enter a city");
+    }
+}
+
+cityFormEL.addEventListener("submit", formSubmitHander);
 
 var getUVIndexColorClass = function(uvIndex) {
     if (uvIndex < 3) {
@@ -252,107 +341,6 @@ var getUVIndexColorClass = function(uvIndex) {
         return "severe";
     }
 }
-
-var displayForecast = function(data, launchDate) {
-    console.log("in displayForecast");
-    // console.log(data);
-    // forecastContainerEL.textContent = "";
-    
-    // check if api returned forecast
-    if (data.length === 0) {
-        console.log("No forecast found");
-        return;
-    }
-
-    // fiveDayForecastEL.textContent = "5-Day Forecast:"
-    // loop through 5-day forecast in daily array
-    var dailyArr = data.daily;
-    // console.log(dailyArr);
-    for (var i = 0; i< dailyArr.length; i++) {
-        // console.log(dailyArr[i]);
-        // get date
-        var date = dailyArr[i].dt;
-        var convertedDate = new Date(date * 1000).toDateString();
-        // console.log(date);
-        launchDate = new Date(launchDate).toDateString();
-        
-        if (launchDate === convertedDate) {
-            console.log('launchDate: ' + launchDate);
-            console.log('convertedDate: ' + convertedDate);
-            console.log("We have a match!");
-
-            //icon
-            var iconURL = 'http://openweathermap.org/img/wn/' + dailyArr[i].weather[0].icon + '@2x.png';
-
-            //temperature
-            var tempKelvin = dailyArr[i].temp.day;
-            var forecastTempF = (tempKelvin - 273.15) * (9/5) + 32;
-
-            // wind
-            var windSpeed = dailyArr[i].wind_speed; 
-
-            // weatherObj.image = iconURL;
-            // weatherObj.temp = forecastTempF.toFixed(2) + "˚ F";
-            // weatherObj.wind = windSpeed.toFixed(2) + ' MPH';
-            // weatherObj.humidity = dailyArr[i].humidity + ' %';
-
-            weatherObj = {image: iconURL, temp: forecastTempF.toFixed(2) + "˚ F", wind: windSpeed.toFixed(2) + ' MPH', humidity: dailyArr[i].humidity + ' %'};
-
-            console.log('set weather obj');
-            console.log(weatherObj);
-             return;
-
-        };
-    };
-};
-
-var getCityWeather = function(lat, long, city, convertedDate) {
-    // get current weather conditions for city
-    var apiURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + long + "&APPID=" + openWeatherMapAPI;
-    fetch(apiURL)
-        .then(function(response) {
-            if (response.ok) {
-                response.json().then(function(data) {
-                     console.log(data);
-                    // displayWeather(city, data);
-                    displayForecast(data, convertedDate);
-                    console.log(" in getCityWeather");
-                    console.log(weatherObj);
-                //    return weatherObj;
-                });
-            }
-            else {
-                alert("Unable to get weather for " + city);
-            }
-        })
-        .catch(function(error) {
-            // 404 error returned
-            alert("Unable to connect to OpenWeatherMap.org");
-        });
-};
-
-
-var getUpcomingLaunches = () => {
-    // var apiURL = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //prod
-    var apiURL = "https://lldev.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //dev
-    // console.log(apiURL);
-    fetch(apiURL)
-        .then(function(response) {
-            if (response.ok) {
-                response.json().then(function(data) {
-                     console.log(data);
-                    displayLaunches(data);
-                });
-            }
-            else {
-                alert("Unable to get upcoming launches!");
-            }
-        })
-        .catch(function(error) {
-            // 404 error returned
-            alert("Unable to connect to thespacedevs.com");
-        });
-};
 
 // var saveCityHistory = function(city) {
 //     cityHistoryEL.textContent = "";
@@ -425,4 +413,5 @@ $(document).on('click', '.button', function() {
 // getCityCoordinates("Indianapolis");
 // getSavedCities(list);
 
-getUpcomingLaunches();
+// getUpcomingLaunches();
+callDataInOrder();
