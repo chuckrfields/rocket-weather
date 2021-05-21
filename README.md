@@ -2,7 +2,7 @@
 
 ## Description
 
-This application displays upcoming rocket launches along with a launch pad weather forecast for launches less than one week away. Users may also search for upcoming launches (ex: "Spacex")
+This application displays upcoming rocket launches along with a launch pad weather forecast for launches less than one week away. Users may also search for upcoming launches (ex: "Spacex").
 
 ## Mock-Up
 
