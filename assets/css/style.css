@@ -138,7 +138,10 @@
   .weather-icon {
     width: 3em;
     height: 3em;
-    vertical-align: text-bottom;
+    /* vertical-align: text-bottom; */
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
   }
 
   .subtitle {
@@ -206,6 +209,13 @@
   .weather-title {
     font-size: larger;
     font-weight: bold;
+    text-align: center;
+    color: white;
+  }
+
+  .forecast-text {
+    font-size: normal;
+    font-weight: normal;
     text-align: center;
     color: white;
   }
@@ -347,6 +357,10 @@
   
   .col-12 {
     flex: 0 0 100%;
+  }
+
+  .card-group {
+    column-count: 3;
   }
 
  

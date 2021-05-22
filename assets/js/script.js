@@ -1,6 +1,6 @@
 var openWeatherMapAPI = '41dcd9d8063f4abb3ee28c6c6fbc6354';
-var launchAPIURL = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //prod
-// var launchAPIURL = "https://lldev.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //dev
+// var launchAPIURL = "https://ll.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //prod
+var launchAPIURL = "https://lldev.thespacedevs.com/2.0.0/launch/upcoming/?limit=10&offset=0&ordering=net"; //dev
 var launchContainerEL = document.querySelector("#launch-container");
 var searchFormEL = document.querySelector("#search-form");
 var searchtermTitleEL  = document.querySelector("#searchterm-title");
@@ -164,8 +164,8 @@ const getLaunchData = async (search) => {
             else {
                  missionDescription = launchesArr[i].mission.description;
                  //  console.log('missionDescription 158: ', missionDescription);
-                 var missionDescEL = document.createElement("p");
-                 // missionDescEL.setAttribute("style", ".card-body");
+                 var missionDescEL = document.createElement("div");
+                 missionDescEL.setAttribute("class", "card-text");
                  missionDescEL.textContent = missionDescription;
                  cardBodyEL.appendChild(missionDescEL);
      
@@ -197,10 +197,13 @@ const getLaunchData = async (search) => {
                              // console.log('launchDate: ' + launchDate);
                              // console.log('convertedDate: ' + convertedDate);
                              // console.log("We have a match!");
+
+                             var weatherHeadingHREL = document.createElement("hr");
+                             weatherDescEL.appendChild(weatherHeadingHREL);
      
                              var weatherHeading = document.createElement("h3");
                              weatherHeading.setAttribute("class", "weather-title");
-                             weatherHeading.textContent = "Launch Pad Forecast";
+                             weatherHeading.textContent = "Launch Forecast:";
                              weatherDescEL.appendChild(weatherHeading);
                 
                              //icon
@@ -220,12 +223,14 @@ const getLaunchData = async (search) => {
                              //weather description
                              var weatherForecast = dailyArr[w].weather[0].description;
                              var weatherForecastEL = document.createElement("div");
+                             weatherForecastEL.setAttribute("class", "forecast-text");
                              weatherForecastEL.textContent = weatherForecast;
                              weatherDescEL.appendChild(weatherForecastEL);
      
                              //cloud cover
                              var cloudCover = "Cloud Coverage: " + dailyArr[w].clouds + "%";
                              var cloudCoverEL = document.createElement("div");
+                             cloudCoverEL.setAttribute("class", "forecast-text");
                              cloudCoverEL.textContent = cloudCover;
                              weatherDescEL.appendChild(cloudCoverEL);
      
@@ -234,6 +239,7 @@ const getLaunchData = async (search) => {
                                  var rainChance = "Chance of Rain: " + dailyArr[w].rain + "%";
                                  var rainChanceEL = document.createElement("div");
                                  rainChanceEL.textContent = rainChance;
+                                 rainChanceEL.setAttribute("class", "forecast-text");
                                  weatherDescEL.appendChild(rainChanceEL);
                              };
                              
@@ -263,16 +269,19 @@ const getLaunchData = async (search) => {
                              // var currentTempF = (tempKelvin - 273.15) * (9/5) + 32;
      
                              forecastTemperatureEL.textContent = "Temp: " + currentTempF.toFixed(2) + "˚ F";
+                             forecastTemperatureEL.setAttribute("class", "forecast-text");
                              weatherDescEL.appendChild(forecastTemperatureEL);
      
                              // wind
                              var forecastWindEL = document.createElement("div");
                              forecastWindEL.textContent = "Wind speed: " + dailyArr[w].wind_speed + " mph";
+                             forecastWindEL.setAttribute("class", "forecast-text");
                              weatherDescEL.appendChild(forecastWindEL);
      
                              // humidity
                              var forecastHumidityEL = document.createElement('div');
                              forecastHumidityEL.textContent = "Humidity: " + dailyArr[w].humidity  + "%";
+                             forecastHumidityEL.setAttribute("class", "forecast-text");
                              weatherDescEL.appendChild(forecastHumidityEL);
                  
                          };
