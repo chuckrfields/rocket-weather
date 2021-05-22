@@ -198,6 +198,11 @@
     text-align: center;
   }
 
+  /* .card-img-top {
+    height: 15vw;
+    object-fit: cover;
+} */
+
   .weather-title {
     font-size: larger;
     font-weight: bold;
