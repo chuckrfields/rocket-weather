@@ -34,9 +34,7 @@ const getLaunchData = async (search) => {
   const callLoadLaunches = async () => {
     launchContainerEL.textContent = "";
     var containerEL = document.createElement("div");
-    containerEL.setAttribute("class", "container");
-    var rowEL = document.createElement("div");
-    rowEL.setAttribute("class", "row");
+    containerEL.setAttribute("class", "card-columns");
 
     var search = searchtermEL.value.trim();
     
@@ -52,9 +50,9 @@ const getLaunchData = async (search) => {
      if (launchData.results != undefined && launchData.results != null) {
          // loop through next 10 launches in array
          var launchesArr = launchData.results;
-         // console.log(dailyArr);
+        //  console.log('line 53', launchesArr);
          for (var i = 0; i< launchesArr.length; i++) {
-             //  console.log('line 60 looping through launches; at number: ', i);
+            //   console.log('line 55 looping through launches; at number: ', i);
              // get date
              var launchDate = launchesArr[i].net;
      
@@ -100,39 +98,32 @@ const getLaunchData = async (search) => {
                  else {
                      convertedTime = h + ":"  + m.toString() + ' AM ' + timezone;
                  }
-     
                  // console.log('time: ' + convertedTime);
              }
      
              // console.log(convertedTime);
              // console.log('daysout: ' + daysOut);
-     
-             var colEL = document.createElement("div");
-            //  colEL.setAttribute("class", "col col-md-2.5");
-             colEL.setAttribute("class", "column");
-             colEL.setAttribute("id", "#col-" + i);
              var cardEL = document.createElement("div");
              cardEL.classList = "card text-white bg-secondary mb-3";
-            //  cardEL.setAttribute("style", "width: 30rem;");
-             cardEL.setAttribute("style", "width: 100%;");
-             var cardHeaderEL = document.createElement("div");
-             cardHeaderEL.setAttribute("class", "card-header");
-             cardHeaderEL.textContent = convertedDate.toLocaleDateString();
+             cardEL.setAttribute("style", "display: inline-block;");
      
              var cardTitleEL =document.createElement("div");
              cardTitleEL.setAttribute("class", "card-title");
-             cardTitleEL.textContent = convertedTime;
-     
+             cardTitleEL.textContent = convertedDate.toLocaleDateString() + ' ' + convertedTime;
+    
              var cardBodyEL = document.createElement("div");
              cardBodyEL.setAttribute("class", "card-body");
+
+             var statusEL =document.createElement("div");
+             statusEL.setAttribute("class", "card-title");
+             statusEL.textContent = "Status: " + launchesArr[i].status.name;
+             cardBodyEL.appendChild(statusEL);
      
              //imgURL
              var rocketImage = document.createElement("img");
              var imgURL = launchesArr[i].image;
              rocketImage.setAttribute("src", imgURL);
-             rocketImage.setAttribute("class", ".card-img-top");
-            //  rocketImage.setAttribute("style", "width: 25rem;");
-            rocketImage.setAttribute("style", "width: 90%; display: block; margin-left: auto; margin-right: auto;");
+             rocketImage.setAttribute("class", "card-img-top");
              // console.log(iconURL);
              cardBodyEL.appendChild(rocketImage);
      
@@ -149,6 +140,20 @@ const getLaunchData = async (search) => {
              var long = launchesArr[i].pad.longitude;
              // console.log(lat);
              // console.log(long);
+
+             //pad
+             var pad = launchesArr[i].pad.name;
+             var padEL = document.createElement("div");
+             padEL.setAttribute("class", "card-title");
+             padEL.textContent = pad;
+             cardBodyEL.appendChild(padEL);
+
+            //pad location
+            var padLocation = launchesArr[i].pad.location.name;
+            var padLocationEL = document.createElement("div");
+            padLocationEL.setAttribute("class", "card-title");
+            padLocationEL.textContent = padLocation;
+            cardBodyEL.appendChild(padLocationEL);
      
             //description
             var missionDescription;
@@ -168,13 +173,9 @@ const getLaunchData = async (search) => {
      
                  if (daysOut < 9) {
                      // console.log("index.html 167 | launchData", launchData);
-                     // document.getElementById("total-cases").innerText =
-                     //   covidData.confirmed.value;
                  
                      const detailData = await getWeatherForLocation(lat, long);
-                     // console.log("index.html 172 | detail Data", detailData);
-                     // document.getElementById("city-of-origin").innerText =
-                     //   detailData[0].confirmed;
+                    //  console.log(" 159 | detail Data", detailData);
                      // console.log("index.html 175 | detail Data timezone", detailData.timezone);
      
                      //get forecast array
@@ -199,17 +200,13 @@ const getLaunchData = async (search) => {
      
                              var weatherHeading = document.createElement("h3");
                              weatherHeading.setAttribute("class", "weather-title");
-                             weatherHeading.textContent = "Launch Forecast";
+                             weatherHeading.textContent = "Launch Pad Forecast";
                              weatherDescEL.appendChild(weatherHeading);
                 
                              //icon
                              var iconURL = 'http://openweathermap.org/img/wn/' + dailyArr[w].weather[0].icon + '@2x.png';
                              // console.log('iconURL: ', iconURL);
-                             
-                             //temperature
-                             var tempKelvin = dailyArr[w].temp.day;
-                             var forecastTempF = (tempKelvin - 273.15) * (9/5) + 32;
-                 
+
                              // wind
                              var windSpeed = dailyArr[w].wind_speed; 
                  
@@ -292,20 +289,16 @@ const getLaunchData = async (search) => {
                  // console.log('location: ' + location);
              }
      
-             cardEL.appendChild(cardHeaderEL);
              cardEL.appendChild(cardTitleEL);
              cardEL.appendChild(cardBodyEL);
-     
-             colEL.appendChild(cardEL);
-     
-             rowEL.appendChild(colEL);
+             containerEL.appendChild(cardEL);
          }
      }
      else {
         launchData.textContent = "No upcoming launches available";
      }
 
-    containerEL.appendChild(rowEL);
+    // containerEL.appendChild(rowEL);
 
     launchContainerEL.appendChild(containerEL);
 
